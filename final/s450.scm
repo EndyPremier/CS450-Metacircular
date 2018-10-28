@@ -292,6 +292,53 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;;  Action Lookup Table / Callbacks
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Lookup-Action
+
+(define (lookup-action type)
+  (let ((record (assoc type (cdr action-table))))
+    (if record
+        (cdr record)
+        #f) ))
+
+; type-of λexp: output symbol of type given expression
+(define (type-of exp)
+  (if (pair? exp)
+      (car exp)
+      #f))
+
+
+;;; Callbacks for Certain Special Forms
+; quote -> quote-callback
+(define (quote-callback exp env)
+  (text-of-quoation exp) )
+; lambda -> lambda-callback
+(define (lambda-callback exp env)
+  (make-procedure (lambda-parameters exp) (lambda-body exp) env) )
+; begin -> begin-callback
+(define (begin-callback exp env)
+  (eval-sequence (begin-actions exp) env) )
+; cond -> cond-callback
+(define (cond-callback exp env)
+  (xeval (cond->if exp) env))
+
+
+;;; Actual Action Table
+(define action-table
+  (list '*table*
+        (cons 'quote  quote-callback)
+        (cons 'set!   eval-assignment)
+        (cons 'define eval-definition)
+        (cons 'if     eval-if)
+        (cons 'lambda lambda-callback)
+        (cons 'begin  begin-callback)
+        (cons 'cond   cond-callback) ))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;;	 Representing environments
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

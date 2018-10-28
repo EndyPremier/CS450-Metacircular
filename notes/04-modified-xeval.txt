@@ -31,7 +31,7 @@ set!      | (eval-assignment exp env)
 define    | (eval-definition exp env)
 if        | (eval-if exp env)
 lambda    | (lambda-callback exp env) -> (make-procedure ...)
-begin     | (eval-callback exp env)   -> (eval-sequence ...)
+begin     | (begin-callback exp env)  -> (eval-sequence ...)
 cond      | (cond-callback exp env)   -> (xeval (cond->if exp) env)
 ----------+--------------------------
 app       | (xapply-callback exp env) -> (xapply ...)
