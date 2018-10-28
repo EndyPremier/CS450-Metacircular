@@ -1,0 +1,7 @@
+xeval λexp λenv:
+  let action = (lookup-action (type-of expression))
+    if lookup succeeded
+      invoke action, passing it the expression and the environment
+      else cond ... ;; check for a few other types of expressions
+
+

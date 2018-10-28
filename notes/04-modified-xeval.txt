@@ -1,0 +1,37 @@
+Special Forms -> Evaluation
+- quote  -> text-of-quotation
+- set!   -> eval-assignment
+- define -> eval-definition
+- if     -> eval-if
+- lambda -> [needed callback] -> make-procedure
+- begin  -> [needed callback] -> xeval (cond->if exp) env
+
+
+Needed the special form list to call into an evaluated callback
+
+type-of | action/callback           -> callback evaluation
+--------+--------------------------
+quoted  | (quote-callback exp env)  -> (text-of-quotation exp)
+set!    | (eval-assignment exp env)
+define  | (eval-definition exp env)
+if      | (eval-if exp env)
+lambda  | (lambda-callback exp env) -> (make-procedure ...)
+begin   | (eval-callback exp env)   -> (eval-sequence ...)
+cond    | (cond-callback exp env)   -> (xeval (cond->if exp) env)
+
+
+MODIFIED VERSION FOR BAREBONE
+
+type-of   | action/callback           -> callback evaluation
+=====================================
+self-eval | (display exp env)         -> exp
+----------+--------------------------
+quote     | (quote-callback exp env)  -> (text-of-quotation exp)
+set!      | (eval-assignment exp env)
+define    | (eval-definition exp env)
+if        | (eval-if exp env)
+lambda    | (lambda-callback exp env) -> (make-procedure ...)
+begin     | (eval-callback exp env)   -> (eval-sequence ...)
+cond      | (cond-callback exp env)   -> (xeval (cond->if exp) env)
+----------+--------------------------
+app       | (xapply-callback exp env) -> (xapply ...)

@@ -1,0 +1,81 @@
+xeval λexp λenv: evaluates the expression in the given environment
+
+xeval λexp λenv:
+  if expression is self-evaluating
+  [number, string, or boolean]
+    output the expression
+  else if expression is a variable
+  [symbol]
+    lookup the variable in an environment
+    [(lookup-variable-value exp env)]
+  else if the expression is a quote 
+  [(quote <list>)]
+    output the quoted list for the expression
+  else if the expression is an assignment
+  [(set! <var> <val>)]
+    evaluate the set value to the environment
+    [(eval-assignment exp env)]
+  else if the expression is a definition
+  [(define <var> <val>); (define (<val> <par1> ...) <body>)]
+    evaluate the definition of the expression
+    [(eval-definition exp env)]
+  else if the expression is an if conditional
+  [(if <pred> <cons> <alt>)]
+    evaluate the if list
+    [(eval-if exp env)]
+  else if the expression is a lambda expression
+  [(lambda ...)]
+    make the lambda into a procedure object
+    [(make-procedure (lambda-parameters exp) (lambda-body exp) env)]
+  else if the expression is a begin sequence
+  [(begin <exp>)]
+    evaluate the sequence
+    [(eval-sequence (begin-actions exp) env)]
+  else if the expressions is a cond
+  [(cond ((<pred>) <consequence>) ...)]
+    evaluate into a sequence of cond-if to the expression
+  else if the expression is an application (if all else fails, but it's a pair)
+    xapply the procedure
+    [(xapply the eval car exp with eval cdr exp)]
+  else
+    error...
+
+--------------------------------------------------------------------------------
+
+valid input:
+  self-eval       [num, str, bool]
+  variable        [sym]
+  quote           [(quote <list>)]
+  assignment      [(set! <var> <val>)]
+  definition      [(define <var> <val>), (define (<proc> <args> ...) <body>)]
+  conditional     [(if <pred> <con> <alt>)]
+  lambda          [(lambda <args> <body>)]
+  begin           [(begin <exp1> ...)]
+  conditional     [(cond (<pred1> <cons1>) ...)]
+  application     [(<proc> <args> ...)]
+    primitive-procedures
+    user-defined-procedure [(procedure <args>)]
+
+
+================================================================================
+
+xapply λproc λargs: evaluates the procedure given the arguments
+
+xapply λproc λargs:
+  if proc is a primitive procedure [in the primitive-procedure list]
+    apply the primitive with the given arguments
+  if proc is user-defined [defined as a lambda in a variable list]
+    evaluate the sequence with
+      taking the procedure body of the proc
+      and extending the environment
+        with the given argument and its values
+  else
+    error...
+
+--------------------------------------------------------------------------------
+
+primitive-procedure list
+- car
+- cdr
+- cons
+- null?

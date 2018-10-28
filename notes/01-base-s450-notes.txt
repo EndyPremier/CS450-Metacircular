@@ -1,0 +1,15 @@
+Key notes:
++ Handling of special forms (quote, define, if, lambda, begin, cond)
+    works as expected
++ cons and null work as expected, but cadr, cdar, and
+    many other nested forms of car and cdr doesn't exist.
++ Other primitive procedures like any calculations (+, -, *, /, etc) or even
+    conditional statements doesn't exist.
++ Any errors in (s450) environment essentially crashes the entire environment
+    and be resorted back to base Scheme as there doesn't exist any form of
+    monads in the environment for error checks. That being said, existing
+    procedures/variables that are in the root environment retains after
+    crashing.
++ Any underlying procedures that runs the (s450) environment cannot be used in
+    (s450) itself - presumably out of stability and all of the procedures are
+    only via variables and primitives.

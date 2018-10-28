@@ -1,0 +1,39 @@
+(read)
+- I: No Arguments
+- O: List
+- call in the input in the terminal like a normal scheme interpreter to be
+    evaluated with (eval)
+
+(eval exp env)
+- I: exp - Expression input that will be interpreted by scheme
+     env - Environment-Specifier (R5RS or Null)
+- O: exp's output when evaluated
+- Evaluates expression in the specified and return its value.
+
+--------------------------------------------------------------------------------
+(eval (read) (scheme-report-environment 5))
+-> simulates the input terminal of scheme
+--------------------------------------------------------------------------------
+
+(apply proc . args)
+- I: proc - Input Procedure
+     args - a list of arguments
+- O: Output of (proc args)
+- Evaluate the argument with proc
+
+--------------------------------------------------------------------------------
+(define (compute)
+  (let ((input (read)))
+    (apply (eval (car input) (scheme-report-environment 5))
+           (cdr input)) ))
+-> component-wise evaluation (NOTE: (car input) is not a procedure but a symbol
+     but it has to be evaluated to be a procedure)
+--------------------------------------------------------------------------------
+
+* NOTE: Not a base R5RS procedure
+(extend-environment vars vals base-env)
+- I: vars - list of variables for this environment
+     vals - list of values mapped to by the variables
+     base-env - the environment based on part of the procedure
+- O: an environment for the procedure to do evaluation
+- Creates a new environment with existing arguments
