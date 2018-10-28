@@ -40,24 +40,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (xeval exp env)
-  (cond ((self-evaluating? exp) exp)
-        ((variable? exp) (lookup-variable-value exp env))
-        ((quoted? exp) (text-of-quotation exp))             ; quote
-        ((assignment? exp) (eval-assignment exp env))       ; set!
-        ((definition? exp) (eval-definition exp env))       ; define
-        ((if? exp) (eval-if exp env))                       ; if
-        ((lambda? exp)                                      ; lambda
-         (make-procedure (lambda-parameters exp)
-                         (lambda-body exp)
-                         env) )
-        ((begin? exp)                                       ; begin
-         (eval-sequence (begin-actions exp) env) )
-        ((cond? exp) (xeval (cond->if exp) env))            ; cond
-        ((application? exp)
-         (xapply (xeval (operator exp) env)
-		             (list-of-values (operands exp) env) ))
-        (else
-         (error "Unknown expression type -- XEVAL " exp) )))
+  ; lookup action for special form checks
+  (let ((action (lookup-action (type-of exp))))
+    ; sift through the xeval
+    (cond ((self-evaluating? exp) exp)
+          ((variable? exp) (lookup-variable-value exp env))
+          ; where the special-form lookups takes place
+          ; if action exists, invoke it
+          (action (action exp env))
+          ((application? exp)
+           (xapply (xeval (operator exp) env)
+                   (list-of-values (operands exp) env) ))
+          (else
+           (error "Unknown expression type -- XEVAL " exp) ))))
 
 (define (xapply procedure arguments)
   (cond ((primitive-procedure? procedure)

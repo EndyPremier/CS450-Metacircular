@@ -15,7 +15,6 @@
            (error "Unknown expression type -- XEVAL " exp) ))))
 
 
-; WIP
 ; lookup-action λtype: lookup callback with given type
 (define (lookup-action type)
   (let ((record (assoc type (cdr action-table))))
