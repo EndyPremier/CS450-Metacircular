@@ -35,3 +35,8 @@ begin     | (begin-callback exp env)  -> (eval-sequence ...)
 cond      | (cond-callback exp env)   -> (xeval (cond->if exp) env)
 ----------+--------------------------
 app       | (xapply-callback exp env) -> (xapply ...)
+
+
+VERDICT
+- a minor edit in spelling but it works flawlessly using an input value test
+- 02-0-test-evals.txt
