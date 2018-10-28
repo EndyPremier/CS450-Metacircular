@@ -1,0 +1,16 @@
+(load "s450.scm")
+(s450)
+1
+"text"
+#t
+#f
+(define a 1)
+a
+'a
+(set! a 2)
+(if #t a 1)
+(if #f a 1)
+((lambda (x) (cons x x)) a)
+(begin 1 2 3)
+(cond (#f 1) (#t 2) (else 3))
+(cond (#f 1) (#f 2) (else 3))
