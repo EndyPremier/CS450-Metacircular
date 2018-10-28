@@ -309,7 +309,7 @@
 ;;; Callbacks for Certain Special Forms
 ; quote -> quote-callback
 (define (quote-callback exp env)
-  (text-of-quoation exp) )
+  (text-of-quotation exp) )
 ; lambda -> lambda-callback
 (define (lambda-callback exp env)
   (make-procedure (lambda-parameters exp) (lambda-body exp) env) )
