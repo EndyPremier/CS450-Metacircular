@@ -419,7 +419,10 @@
         (let ((frame (first-frame env)))
           (scan (frame-variables frame)
                 (frame-values frame) ))))
-  (env-loop env) )
+  ; check if var is special form or not to prevent crash
+  (if (lookup-action var)
+      (begin (display "Special Form:  ") var)
+      (env-loop env) ))
 
 ;;; Setting a variable to a new value in a specified environment.
 ;;; Note that it is an error if the variable is not already present
