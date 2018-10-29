@@ -441,7 +441,10 @@
         (let ((frame (first-frame env)))
           (scan (frame-variables frame)
                 (frame-values frame) ))))
-  (env-loop env) )
+  ; check if var is special form or not to prevent crash
+  (if (lookup-action var)
+      (error "Variable is Special-Form Not Allowed -- SET! " var)
+      (env-loop env) ))
 
 ;;; Defining a (possibly new) variable.  First see if the variable
 ;;; already exists.  If it does, just change its value to the new
@@ -456,8 +459,11 @@
             ((eq? var (car vars))
              (set-car! vals val) )
             (else (scan (cdr vars) (cdr vals))) ))
-    (scan (frame-variables frame)
-          (frame-values frame) )))
+    ; check if var is special form or not to prevent crash
+    (if (lookup-action var)
+        (error "Variable is Special-Form Not Allowed -- DEFINE " var)
+        (scan (frame-variables frame)
+              (frame-values frame) ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
