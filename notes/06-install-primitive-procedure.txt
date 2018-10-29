@@ -1,0 +1,73 @@
+- exactly like the install-special-form
+- BUT, make sure to wipe out these old variables
+  - primitive-procedures
+  - primitive-procedure-names
+  - primitive-procedure-objects
+
+================================================================================
+OLD CODE
+
+(define (xapply procedure arguments)
+  (cond ((primitive-procedure? procedure)
+         (apply-primitive-procedure procedure arguments))
+        ((user-defined-procedure? procedure)
+         (eval-sequence
+           (procedure-body procedure)
+           (xtend-environment
+             (procedure-parameters procedure)
+             arguments
+             (procedure-environment procedure))))
+        (else
+         (error
+          "Unknown procedure type -- XAPPLY " procedure))))
+
+;;; ...
+
+;;; This is initialization code that is executed once, when the the
+;;; interpreter is invoked.
+
+(define (setup-environment)
+  (let ((initial-env
+         (xtend-environment (primitive-procedure-names)
+                            (primitive-procedure-objects)
+                            the-empty-environment) ))
+    initial-env) )
+
+;;; Define the primitive procedures
+
+(define (primitive-procedure? proc)
+  (tagged-list? proc 'primitive) )
+
+(define (primitive-implementation proc) (cadr proc))
+
+(define primitive-procedures
+  (list (list 'car car)
+        (list 'cdr cdr)
+        (list 'cons cons)
+        (list 'null? null?)
+;;      more primitives
+        ))
+
+(define (primitive-procedure-names)
+  (map car
+       primitive-procedures) )
+
+(define (primitive-procedure-objects)
+  (map (lambda (proc) (list 'primitive (cadr proc)))
+       primitive-procedures) )
+
+;;; Here is where we rely on the underlying Scheme implementation to
+;;; know how to apply a primitive procedure.
+
+(define (apply-primitive-procedure proc args)
+  (apply (primitive-implementation proc) args) )
+
+
+================================================================================
+
+name   | object
+-------+-------
+'car   | car
+'cdr   | cdr
+'cons  | cons
+'null? | null?
