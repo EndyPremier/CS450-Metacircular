@@ -71,3 +71,15 @@ name   | object
 'cdr   | cdr
 'cons  | cons
 'null? | null?
+
+
+================================================================================
+
+
+VERDICT
+=======
++ Have to hacksaw the set! to the-global-environment since trying to modify the
+  prim-table doesn't modify the global environment without the set! akin to a
+  hard-reset to the value running the risk making even more garbage than what
+  could be acceptable, but hey, it works.
+
