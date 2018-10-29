@@ -512,7 +512,9 @@
         ((assoc name prim-table)
           (error "Action already exists: " name))
         ; if everything checks out, add to the list and output name
-        (else (set! prim-table (cons (cons name action) prim-table))
+        (else (set! prim-table (cons (list name action) prim-table))
+              ; reset the global environment
+              (set! the-global-environment (setup-environment))
               name) ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
