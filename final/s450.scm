@@ -72,7 +72,7 @@
 
 (define (list-of-values exps env)
   (if (no-operands? exps)
-   primitive-procedure-names   '()
+      '()
       (cons (xeval (first-operand exps) env)
             (list-of-values (rest-operands exps) env) )))
 
@@ -467,8 +467,8 @@
 
 (define (setup-environment)
   (let ((initial-env
-         (xtend-environment (primitive-procedure-names)
-                            (primitive-procedure-objects)
+         (xtend-environment (prim-names)
+                            (prim-obj)
                             the-empty-environment) ))
     initial-env) )
 
@@ -479,27 +479,41 @@
 
 (define (primitive-implementation proc) (cadr proc))
 
-(define primitive-procedures
+; prim-table for evaluating in scheme-base level (primitive-procedures)
+;   install-primitive-procedure allows expansions
+(define prim-table
   (list (list 'car car)
         (list 'cdr cdr)
         (list 'cons cons)
-        (list 'null? null?)
-;;      more primitives
-        ))
+        (list 'null? null?) ))
 
-(define (primitive-procedure-names)
-  (map car
-       primitive-procedures) )
-
-(define (primitive-procedure-objects)
-  (map (lambda (proc) (list 'primitive (cadr proc)))
-       primitive-procedures) )
+; prim-names (primitive-procedure-names)
+(define (prim-names) (map car prim-table))
+; prim-obj (primitive-procedure-objects)
+(define (prim-obj) (map (lambda (proc) (list 'primitive (cadr proc)))
+                        prim-table) )
 
 ;;; Here is where we rely on the underlying Scheme implementation to
 ;;; know how to apply a primitive procedure.
 
 (define (apply-primitive-procedure proc args)
   (apply (primitive-implementation proc) args) )
+
+;;; Here is where to install new primitive procedures
+
+(define (install-primitive-procedure name action)
+  (cond ; name must be a symbol
+        ((not (symbol? name))
+          (error "Not a symbol: " name))
+        ; action must be a lambda / procedure
+        ((not (procedure? action))
+          (error "Not a lambda: " action))
+        ; action shouldn't already exists in list
+        ((assoc name prim-table)
+          (error "Action already exists: " name))
+        ; if everything checks out, add to the list and output name
+        (else (set! prim-table (cons (cons name action) prim-table))
+              name) ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

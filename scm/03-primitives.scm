@@ -12,12 +12,13 @@
         ; if everything checks out
         (else
           ; add to list
-          (set! prim-table (cons (cons name action) prim-table))
+          (set! prim-table (cons (cons name action) prim-table) )
           ; output name
           name) ))
 
 
 ; prim-table for evaluating in scheme-base level (primitive-procedures)
+;   install-primitive-procedure allows expansions
 (define prim-table
   (list (list 'car car)
         (list 'cdr cdr)
