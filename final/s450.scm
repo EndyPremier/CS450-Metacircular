@@ -287,6 +287,29 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;;  File Load (from load.s450)
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define eval-load
+  (lambda (exp env)
+    (define (filename exp) (cadr exp))
+    (define thunk (lambda ()
+        (readfile)
+        ))
+    (define readfile (lambda()
+           (let ((item (read)))
+       (if (not (eof-object? item))
+           (begin
+             (xeval item env)
+             (readfile))))
+           ))
+    (with-input-from-file (filename exp) thunk)
+    (filename exp)      ; return the name of the file - why not?
+    ))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;;  Action Lookup Table / Callbacks
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -331,6 +354,18 @@
         (cons 'lambda lambda-callback)
         (cons 'begin  begin-callback)
         (cons 'cond   cond-callback) ))
+
+
+;;; Install New Special Forms
+(define (install-special-form name action)
+  (cond ((not (symbol? name)) (error "Not a symbol: " name))
+        ((not (procedure? action)) (error "Not a lambda: " action))
+        ((lookup-action name) (error "Action already exists: " name))
+        (else (set! action-table
+                    (list '*table*
+                          (cons name action)
+                          (cdr action-table) ))
+              name) ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

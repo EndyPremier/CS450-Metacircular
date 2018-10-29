@@ -11,10 +11,13 @@
           (error "Action already exists: " name))
         ; everything checks out
         (else
+          ; add to list
           (set! action-table
                 (list '*table*
                       (cons name action)
-                      (cdr action-table) )))))
+                      (cdr action-table) ))
+          ; output name
+          name) ))
 
 ;; older version
 ;(define (install-special-form name action)
