@@ -1,20 +1,24 @@
 ; defined? λsymbol: check if symbol is defined in enviornment
-(define (defined? symbol)
+; -> def?-callback λexp λenv: s450 interface
+(define (def?-callback exp env)
   ; WIP OUTPUT
-  symbol)
+  exp)
 
 ; locally-defined? λsymbol: check if symbol is defined in current frame
-(define (locally-defined? symbol)
+; -> frame-def?-callback λexp λenv: s450 interface
+(define (frame-def?-callback exp env)
   ; WIP OUTPUT
-  symbol)
+  exp)
 
 ; make-unbound! λsymbol: remove symbol binding from current chain of frame
-(define (make-unbound! symbol)
+; -> unb!-callback λexp λenv: s450 interface
+(define (unb!-callback exp env)
   ; WIP OUTPUT
-  symbol)
+  exp)
 
 ; locally-make-unbound! λsymbol: remove symbol binding from current frame
-(define (locally-make-unbound! symbol)
+; -> frame-unb!-callback λexp λenv: s450 interface
+(define (frame-unb!-callback exp env)
   ; WIP OUTPUT
-  symbol)
+  exp)
 

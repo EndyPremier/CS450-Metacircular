@@ -1,0 +1,10 @@
+POTENTIAL SPECIAL FORMS            -> EVAL-CALLBACKS
+==================================    ---------------------------------
++ (defined?              <symbol>) -> (def?-callback       <exp> <env>)
++ (locally-defined?      <symbol>) -> (frame-def?-callback <exp> <env>)
++ (make-unbound!         <symbol>) -> (unb!-callback       <exp> <env>)
++ (make-locally-unbound! <symbol>) -> (frame-unb!-callback <exp> <env>)
+
+HOW TO INSTALL THE NEW SPECIAL FORM
++ Add the evaluation scripts to the main s450.scm code
++ install-primitive-procedure <'name> <evals>

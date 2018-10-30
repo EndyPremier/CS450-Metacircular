@@ -1,1 +1,3 @@
 - table access can determine if the value exist or not
+
++ LATER DOWN THE LINE - CONS CONCATENATION ERROR MADE IT SO FUSTRATING
