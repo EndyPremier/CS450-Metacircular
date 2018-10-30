@@ -362,9 +362,9 @@
         ((not (procedure? action)) (error "Not a lambda: " action))
         ((lookup-action name) (error "Action already exists: " name))
         (else (set! action-table
-                    (list '*table*
-                          (cons name action)
-                          (cdr action-table) ))
+                    (cons '*table*
+                          (cons (cons name action)
+                                (cdr action-table) )))
               name) ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -562,7 +562,6 @@
                      '<procedure-env>) )
       (display object) ))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;;	 Here we go:  define the global environment and invite the
@@ -575,3 +574,23 @@
 
 (display "... loaded the metacircular evaluator. (s450) runs it.")
 (newline)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;	 Pre-Evaluation for Preprocessing
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Install Special Forms
+(install-special-form 'load eval-load)
+
+;;; Install Primitive Procedures
+(install-primitive-procedure '+ +)
+(install-primitive-procedure '- -)
+(install-primitive-procedure '* *)
+(install-primitive-procedure '/ /)
+
+(install-primitive-procedure 'newline newline)
+(install-primitive-procedure 'display display)
+

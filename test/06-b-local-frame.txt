@@ -1,0 +1,10 @@
+(define f
+  (lambda (a b)
+    (display (locally-defined? a))
+    (display (locally-defined? b))
+    (locally-make-unbound a)
+    (locally-make-unbound b)
+    (display (locally-defined? a))
+    (display (locally-defined? b))
+  )
+)
