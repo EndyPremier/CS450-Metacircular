@@ -486,7 +486,7 @@
           ; still var in var-list, check if current entry is true, return true
           ((eq? (car var-list) curr-var) #t)
           ; not same, go down one entry in list
-          (else (cdr var-list) curr-var base-env) ))
+          (else (def-check (cdr var-list) curr-var base-env)) ))
   ; main procedure
   (if (null? (cdr exp))
       (error "No arguments exists! -- DEFINED?")
@@ -502,7 +502,7 @@
           ; still var in var-list, check if current entry is true, return true
           ((eq? (car var-list) curr-var) #t)
           ; not same, go down one entry in list
-          (else (cdr var-list) curr-var) ))
+          (else (def-check (cdr var-list) curr-var)) ))
   ; main procedure
   (if (null? (cdr exp))
       (error "No arguments exists! -- LOCALLY-DEFINED?")
@@ -527,9 +527,9 @@
 ; -> frame-unb!-callback λexp λenv: s450 interface
 (define (frame-unb!-callback exp env)
   (cond ((null? (cdr exp))
-          (error "No arguments exists! -- MAKE-UNBOUND!"))
+          (error "No arguments exists! -- LOCALLY-MAKE-UNBOUND!"))
         ((assoc (cadr exp) prim-table)
-          (error "Forbids Primitives -- MAKE-UNBOUND!"))
+          (error "Forbids Primitives -- LOCALLY-MAKE-UNBOUND!"))
         (else (set-car! env (delete-in-frame! (car env) val))) ))
 
 
