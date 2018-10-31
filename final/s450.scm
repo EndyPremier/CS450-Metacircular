@@ -477,7 +477,7 @@
   ; sift through the var-list and environments
   (define (def-check var-list curr-var base-env)
     (cond ; if reached the-empty-environment, return false
-          ((null? base-env) #f)
+          ((and (null? var-list) (null? base-env)) #f)
           ; if all var checked in current frame, go down one environment
           ((null? var-list)
             (def-check (car (first-frame base-env))
@@ -517,16 +517,20 @@
           (else (set-car! curr-env (delete-in-frame! (car curr-env) val))
                 (unb! (cdr curr-env)) )))
   ; main procedure
-  (if (null? (cdr exp))
-      (error "No arguments exists! -- MAKE-UNBOUND!")
-      (unb! env (cadr exp)) ))
+  (cond ((null? (cdr exp))
+          (error "No arguments exists! -- MAKE-UNBOUND!"))
+        ((assoc (cadr exp) prim-table)
+          (error "Forbids Primitives -- MAKE-UNBOUND!"))
+        (else (unb! env (cadr exp))) ))
 
 ; locally-make-unbound! λsymbol: remove symbol binding from current frame
 ; -> frame-unb!-callback λexp λenv: s450 interface
 (define (frame-unb!-callback exp env)
-  (if (null? (cdr exp))
-      (error "No arguments exists! -- MAKE-UNBOUND!")
-      (set-car! curr-env (delete-in-frame! (car env) val)) ))
+  (cond ((null? (cdr exp))
+          (error "No arguments exists! -- MAKE-UNBOUND!"))
+        ((assoc (cadr exp) prim-table)
+          (error "Forbids Primitives -- MAKE-UNBOUND!"))
+        (else (set-car! env (delete-in-frame! (car env) val))) ))
 
 
 ; helper procedures
