@@ -8,3 +8,13 @@ POTENTIAL SPECIAL FORMS            -> EVAL-CALLBACKS
 HOW TO INSTALL THE NEW SPECIAL FORM
 + Add the evaluation scripts to the main s450.scm code
 + install-primitive-procedure <'name> <evals>
+
+ENVIRONMENT STRUCTURE
+(cons var val) :: frame
+(cons frame env) :: environment-frame
+
++ Much of my frustration earlier was from trying to find a solution of deleting
+  an individual entry and how to do that with two list simultaneously
+  -> delete-in-frame
++ Annoying conditional cases and early exits and unaware of actual counts
++ expand the test example for checking definition generally
