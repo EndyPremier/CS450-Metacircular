@@ -515,7 +515,7 @@
   (define (unb! curr-env val)
     (cond ((null? curr-env) val)
           (else (set-car! curr-env (delete-in-frame! (car curr-env) val))
-                (unb! (cdr curr-env)) )))
+                (unb! (cdr curr-env) val) )))
   ; main procedure
   (cond ((null? (cdr exp))
           (error "No arguments exists! -- MAKE-UNBOUND!"))
@@ -530,7 +530,7 @@
           (error "No arguments exists! -- LOCALLY-MAKE-UNBOUND!"))
         ((assoc (cadr exp) prim-table)
           (error "Forbids Primitives -- LOCALLY-MAKE-UNBOUND!"))
-        (else (set-car! env (delete-in-frame! (car env) val))) ))
+        (else (set-car! env (delete-in-frame! (car env) (cadr exp)))) ))
 
 
 ; helper procedures
@@ -681,5 +681,5 @@
 (install-special-form 'defined?                    def?-callback)
 (install-special-form 'locally-defined?      frame-def?-callback)
 (install-special-form 'make-unbound!               unb!-callback)
-(install-special-form 'make-locally-unbound! frame-unb!-callback)
+(install-special-form 'locally-make-unbound! frame-unb!-callback)
 
