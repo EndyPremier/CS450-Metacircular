@@ -506,7 +506,7 @@
   ; main procedure
   (if (null? (cdr exp))
       (error "No arguments exists! -- LOCALLY-DEFINED?")
-      (def-check (car (first-frame base-env)) (cadr exp)) ))
+      (def-check (car (first-frame env)) (cadr exp)) ))
 
 ; make-unbound! λsymbol: remove symbol binding from current chain of frame
 ; -> unb!-callback λexp λenv: s450 interface
@@ -526,7 +526,7 @@
 (define (frame-unb!-callback exp env)
   (if (null? (cdr exp))
       (error "No arguments exists! -- MAKE-UNBOUND!")
-      (set-car! curr-env (delete-in-frame! (car curr-env) val)) ))
+      (set-car! curr-env (delete-in-frame! (car env) val)) ))
 
 
 ; helper procedures
