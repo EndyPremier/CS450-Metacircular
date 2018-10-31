@@ -1,3 +1,5 @@
+(define c 3)
+
 (define f
   (lambda (a b)
     (display (locally-defined? a))
@@ -9,7 +11,7 @@
     (display (defined? c))
     (display (defined? b))
     (make-unbound! c)
-    (make-unbound! b)
+    (define b 2)
     (display (defined? c))
     (display (defined? b))
   )

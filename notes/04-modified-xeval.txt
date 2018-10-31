@@ -11,7 +11,7 @@ Needed the special form list to call into an evaluated callback
 
 type-of | action/callback           -> callback evaluation
 --------+--------------------------
-quoted  | (quote-callback exp env)  -> (text-of-quotation exp)
+quote   | (quote-callback exp env)  -> (text-of-quotation exp)
 set!    | (eval-assignment exp env)
 define  | (eval-definition exp env)
 if      | (eval-if exp env)
