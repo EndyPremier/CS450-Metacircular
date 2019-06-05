@@ -1,0 +1,214 @@
+HOMEWORK 6 NOTES - Endy Iskandar Imam
+=====================================
+
+  I felt somewhat embarrassed pointing this out, but I know this is a necessary
+step to the software development process, and its that half of my time
+throughout this assignment is making sure I understand the s450 code-base and
+how it simulates UMB-Scheme, and there are many components that are vital for
+running s450 - things that will be explained more completely down the line.
+
+  One part is understanding how eval, apply and read procedures works with read
+taking in input Scheme expressions and converting that to a list to be evaluated
+whole via eval or by procedure and argument via apply. The
+
+  The second part is figuring out how to evaluate given the procedure on the
+start of the expression list using eval/xeval - basically checks on the input
+value if it's a pair or not, if its a variable that exist, or what special form
+it's at the car of the expression list.
+
+  So after trying the initial version of s450, I noticed some few key points
+that are similar to UMB-Scheme / R5RS-Scheme:
+
+  + Handling of special forms (quote, define, if, lambda, begin) works as
+      expected.
+  + cons, car, cdr, and null? works as expected.
+
+  But there are many other things that are simply missing in s450 from R5RS-Scheme:
+
+  + Other primitive procedures like any calculations (+, -, *, /, etc) or
+      nested forms of car and cdr doesn't exist.
+  + Any errors in (s450) environment essentially crashes the entire environm-
+      ent and be resorted back to base Scheme as there doesn't exist any form
+      of monads (or current continuation inherent to Scheme) in the environ-
+      ment for error checks. That being said, existing procedures/variables 
+      that are in the root environment retains after crashing. Which makes 
+      sense with the utilization of the-global-environment
+  + And any underlying UMB-Scheme procedures that run the (s450) environment 
+      cannot be used in (s450) itself - presumably out of stability and all of
+      the procedures are only via variables and primitives (which in deeper
+      terms means procedures and special forms are restricted to the tables
+      in s450.scm).
+
+  So when figuring out the design of xeval, I literally have to list down the 
+type of values that it will be evaluated for xeval in the first place and here 
+is the list of valid inputs:
+
+  S450 Type   | R5RS-Scheme Type
+  ------------+--------------------------------------------------------------
+  self-eval   | [num, str, bool]
+  variable    | [sym]
+  quote       | [(quote <list>)]
+  assignment  | [(set! <var> <val>)]
+  definition  | [(define <var> <val>), (define (<proc> <args> ...) <body>)]
+  conditional | [(if <pred> <con> <alt>)]
+  lambda      | [(lambda <args> <body>)]
+  begin       | [(begin <exp1> ...)]
+  conditional | [(cond (<pred1> <cons1>) ...)]
+  application | [(<proc> <args> ...)]
+
+  What's not mentioned in the list is primitive procedures and user-defined pro-
+cedures, and this is under the application type and how xapply evaluates that -
+primitive just taking in the argument under the base R5RS-Scheme application
+whereas user-defined first evaluates the argument before taking those into the
+extension of the environment.
+  So with that classification is done, I picked out the necessary special forms
+for which I picked: quote, set!, define, if, lambda, begin, and cond. self-eval,
+variables and applications are dedicated to their own as - how the algorithm
+goes - special forms are applied after it is checked if it is not a self-eval or
+a variable but before checking if its an application because the special forms
+are in an application form but special form should have higher priority.
+  With that explained, I designed the lookup-table of actions called action-
+table with the entries having a pair with car being the symbol representing the
+special form and the cdr being the following procedure to take in the expression
+and the environment and process it from there. And here is the initial table:
+
+  type-of | action/callback           -> callback evaluation
+  --------+--------------------------    --------------------------
+  quote   | (quote-callback exp env)  -> (text-of-quotation exp)
+  set!    | (eval-assignment exp env)
+  define  | (eval-definition exp env)
+  if      | (eval-if exp env)
+  lambda  | (lambda-callback exp env) -> (make-procedure ...)
+  begin   | (eval-callback exp env)   -> (eval-sequence ...)
+  cond    | (cond-callback exp env)   -> (xeval (cond->if exp) env)
+
+  Notice that some of the special-forms like set!, define, and if already have
+their actions tied to them with a straightforward arguments of exp and env, but
+for others like quote being evaluated to test-of-quotation expression that takes
+only one argument, I devised callback procedures with the same arguments for
+each of the appropriate special-forms that take in the argument and processes it
+to its appropriate procedures exactly like what they were before they are in
+tables.
+  And the way it accesses those values is utilizing lookup-action type which
+basically the lookup procedure for the lookup table - the table being the
+action-table of special forms - and the type-of procedure being simply taking
+the start of the expression list if the input is a pair, to begin with. And all
+of this is having the action defined beforehand before checking if the values
+are variables or self-evals.
+  So with what's given, I tested it out by barraging every possible type of
+values into the (s450) environment and it worked flawlessly. There were a few
+issues through the debugging being spelling errors but that's quickly ironed
+out.
+
+  Then, finally creating the install-special-form procedure that takes in a
+symbol name for the special form and the lambda side-effect associated for that
+special form. So armed with the new table, I designed the install-special-form
+procedure that is basically the insert! procedure for a lookup table. It worked
+flawlessly now, but initially when I thought it was working,
+  I was facing a lot of problems of special forms not being accessed which took
+me a lot of backtracking and looking into the action-table only to figure out
+that the putting the cdr of the table into a list construction it's not the same
+as putting the cdr of the table into a cons, which is something I would have
+found sooner had it not that printing out the action-table are completely
+cluttered with the values for the keys not being in <procedure> form but rather
+expanded into a full lambda list, which I would assume it's because it's within
+the (s450) environment and not the root scheme environment or maybe it's a weird
+quirk with UMB-Scheme in particular.
+  Once that is done, accessing special-forms and even installing new special-
+forms like (load) works as intended with me trying to dump in a file of a lot of
+define procedures which processed out as expected.
+
+  For install-primitive-procedure procedure, I thought it would work with the
+same kind of structure that is utilized with install-special-forms - create a
+table of primitives called prim-table (with the existing cons and null
+procedures) and having the install procedures associated to it. What I didn't
+expect is how that table of argument is tightly coupled to many parts of the
+program, thanks in major part to the setup-environment as they need access as an
+application and evaluation just like the user-procedures.
+  One thing to note, that even if I add procedures into the prim-table, it's not
+available within the-global-environment because the value of the-global-
+environment hadn't changed after I add something in, so I no choice but to bodge
+in a set! to the-global-environment to commit changes, and I felt like it is
+going to make even more garbage than it seems acceptable, but it works no less,
+allowing installation of primitive procedures that I definitely felt s450 was
+missing, like arithmetic evaluations (+, -, *, /, etc.)
+
+  Checking if the symbol in the prompt is a special form is a simple tweak in
+initial evaluation as it now just looks up if the variable is in the action-
+table of special forms or not and if it is, just displays.
+  And the same goes with set! and define having their own condition statement
+that just spits out an error noting that defining a special form is forbidden.
+
+  This last part took a whole day as one of my dilemmas was trying to figure out
+how to properly unbound a variable and its value in the "table" leads to a lot
+of contradiction of access that I basically decided to bodge another fully-
+functional procedure of taking in the initial and outputting it to become that
+value to be imperatively set.
+  With that said, I thought I have a decent idea with how the defined and
+unbound procedures work after taking some time to look into how the environment
+and frames work.
+  An environment defined in s450 is a cons with the car being the environment's
+frame and the cdr being the environment's parent environment. And a frame
+defined in s450 is a cons with the car being the frame's list of variables and
+the cdr being the frame's list of values associated with the variables at car.
+  So besides that initial list frustration, I thought I have a firm understand-
+ing of how the special form works and how its implemented, checking the frame in
+the environment and, if allowed, look back into the parent environment for their
+frames to see if it exists or not and maybe "delete" that in the process.
+  And putting those forms in s450 is simply adding the appropriate evaluating
+callback procedures into the s450.scm and installing those with its intended
+procedures, as listed below:
+
+  POTENTIAL SPECIAL FORMS            -> EVAL-CALLBACKS
+  ==================================    ---------------------------------
+  + (defined?              <symbol>) -> (def?-callback       <exp> <env>)
+  + (locally-defined?      <symbol>) -> (frame-def?-callback <exp> <env>)
+  + (make-unbound!         <symbol>) -> (unb!-callback       <exp> <env>)
+  + (make-locally-unbound! <symbol>) -> (frame-unb!-callback <exp> <env>)
+
+  So for defined?, it's tied to the def?-callback that sifts through iteratively
+with delving into the environment's frame and checking if there exists a value.
+If this was locally and it hadn't found it, it just outputs false, but for the
+whole environment, it goes outward to its parents and check their frames, and
+keeps doing it until it finds one and output true or they have an empty-frame
+and they have the base-environment being the empty environment, outputting
+false.
+  make-unbound! sifts through the environment - or the current frame if locally
+defined - and find the variable in the frame to unbound. If it found one in the
+frame, it just removes it off the table and if it's in the global version, it's
+immediately going to the next environment knowing that only one variable of that
+name exists in that frame. And once it is finished, it outputs the value's name
+for verification.
+  And this enters into my second source of frustration that with cases of
+defined?, it seems to make an early exit if it immediately first check only if
+the base environment is empty and not checking if there are still variables to
+check in the global frame.
+  And this also reminded me that for unbound! procedures, in particular, I
+should make a precaution saying that if you try to unbound a primitive
+procedure, you are going to get yourself an error.
+  So with patches made and some testing with the given example along with some
+versions like:
+
+  (define c 3)
+
+  (define f
+    (lambda (a b)
+      (display (locally-defined? a))
+      (display (locally-defined? b))
+      (locally-make-unbound! a)
+      (locally-make-unbound! b)
+      (display (locally-defined? a))
+      (display (locally-defined? b))
+      (display (defined? c))
+      (display (defined? b))
+      (make-unbound! c)
+      (define b 2)
+      (display (defined? c))
+      (display (defined? b))
+    )
+  )
+
+having no crashes, I ended off this assignment with one note about the actual
+primitive procedures as it seems like those are stored somewhere in Scheme that
+I have no idea of accessing in the first place, sorta like (s450) having no idea
+that the table exists at all.
