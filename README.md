@@ -1,7 +1,7 @@
 # Metacircular Scheme Evaluator Simulator
 
 **Term:** Senior Fall 2018  
-**Course:** CS450 - Higher Programming Languages 
+**Course:** CS450 - Higher Programming Languages  
 **Date:** October 2018  
 **Tool:** SSH  
 **Language:** Scheme  
